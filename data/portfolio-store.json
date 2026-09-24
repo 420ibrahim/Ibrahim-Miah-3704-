@@ -1,5 +1,5 @@
 {
-  "portraitSrc": "/uploads/portrait-1790214074938.jpg",
+  "portraitSrc": "/ibrahim-portrait.jpg",
   "style": {
     "preset": "cyan",
     "glowColor": "#10b981",
@@ -15,28 +15,26 @@
     {
       "id": "template-01",
       "templateNumber": 1,
-      "title": "YouTube & Commercial Video Editing",
+      "title": "Promotional SaaS & Commercial Video Editing",
       "category": "long-form",
       "categoryLabel": "Video Editing 01",
       "aspectRatio": "16:9",
-      "client": "Tech Creator & Brand Channel",
-      "description": "Engineered for long-form narrative pacing, dynamic B-roll cutaways, invisible L/J-cuts, and broadcast-grade dialogue cleanup. Pacing structured to eliminate viewer drop-off points in the first 30 seconds.",
+      "client": "SaaS Brand & Tech Channel",
+      "description": "Promotional SaaS animation, interface pacing curves, dynamic cutaways, and sound design.",
       "editingTechniques": [
-        "Multi-cam sync & pacing curves in Premiere Pro",
-        "Dynamic B-roll overlays & sound effects layering",
-        "Lumetri color grading with cinematic film LUTs",
-        "Dialogue normalization & background noise reduction"
+        "Pacing curves in Premiere Pro",
+        "Dynamic overlays & sound effects layering"
       ],
       "toolsUsed": [
         "Adobe Premiere Pro",
-        "Adobe After Effects",
+        "After Effects",
         "Photoshop"
       ],
       "metrics": "84% Hook Retention · 1.4M Views",
       "videoSourceType": "youtube",
       "videoUrl": "https://youtu.be/-h5a8WZLCGQ?si=ucmzMvjxsF5q1Gxf",
       "thumbnailUrl": "/thumbnails/thumb-youtube.jpg",
-      "duration": "08:24",
+      "duration": "01:18",
       "isCustomUploaded": true,
       "accentColor": "#06b6d4",
       "embedUrl": "https://www.youtube.com/embed/-h5a8WZLCGQ?autoplay=1&rel=0"
@@ -44,23 +42,20 @@
     {
       "id": "template-02",
       "templateNumber": 2,
-      "title": "Reels, Shorts & TikTok Video Editing",
+      "title": "Premium Reels & Shorts Retention Editing",
       "category": "short-form",
       "categoryLabel": "Video Editing 02",
       "aspectRatio": "9:16",
       "client": "Social Media & Personal Brand",
-      "description": "Ultra fast-paced vertical video editing designed specifically for algorithm retention. Features strong 0-3s visual hooks, punchy sound design, and custom animated word-by-word subtitles with emoji emphasis.",
+      "description": "Fast-paced vertical retention cuts, animated captions, and sound design.",
       "editingTechniques": [
         "0-3 second immediate visual hook placement",
-        "Kinetic word-by-word animated captions",
-        "Impact sound effects (whooshes, pops, riser drops)",
-        "Split-screen framing & punch-in zooms"
+        "Kinetic word-by-word animated captions"
       ],
       "toolsUsed": [
         "Adobe Premiere Pro",
         "After Effects",
-        "Jitter",
-        "Canva"
+        "CapCut"
       ],
       "metrics": "128% Avg Watch Time · 2.8M Views",
       "videoSourceType": "youtube",
@@ -74,17 +69,15 @@
     {
       "id": "template-03",
       "templateNumber": 3,
-      "title": "Product Promo & Commercial Video Editing",
+      "title": "Cinematic Product Promo Video Editing",
       "category": "commercial",
       "categoryLabel": "Video Editing 03",
-      "aspectRatio": "16:9",
-      "client": "E-Commerce Brand & Tech Showcase",
-      "description": "Cinematic product showcase editing with rhythm beat cuts, speed ramps, 3D camera tracker titles, color grade enhancement, and high-impact visual transitions designed to hold viewer attention.",
+      "aspectRatio": "9:16",
+      "client": "Commercial Brand & Showcase",
+      "description": "Cinematic product showcase with beat cuts, speed ramps, and 3D titles.",
       "editingTechniques": [
         "Precision beat matching & speed ramp transitions",
-        "High-contrast color grading & product reflections",
-        "Feature callout motion graphics & specs tags",
-        "Dynamic sound design (sub bass drops, risers, swooshes)"
+        "High-contrast color grading & product reflections"
       ],
       "toolsUsed": [
         "Adobe Premiere Pro",
@@ -103,22 +96,20 @@
     {
       "id": "template-04",
       "templateNumber": 4,
-      "title": "Cinematic Documentary & Narrative Video Editing",
+      "title": "Talking Head & Narrative Video Editing",
       "category": "documentary",
       "categoryLabel": "Video Editing 04",
       "aspectRatio": "16:9",
-      "client": "Documentary Channel & Visual Storyteller",
-      "description": "Deep narrative editing structured with immersive story arc, archival footage restoration, historical map animations, and emotive soundtrack leveling to build emotional weight and tension.",
+      "client": "Nafees Salim & Visual Storyteller",
+      "description": "Deep narrative storytelling, archival restoration, and ambient audio layering.",
       "editingTechniques": [
         "Emotional storytelling arc & chapter structuring",
-        "Archival photo 2.5D parallax camera mapping",
-        "Broadcast-grade audio mixing & ambient layering",
-        "Film grain & subtle Halation color finishing"
+        "Broadcast-grade audio mixing & ambient layering"
       ],
       "toolsUsed": [
         "Adobe Premiere Pro",
         "After Effects",
-        "Photoshop"
+        "Audition"
       ],
       "metrics": "Broadcast Standard · High Retention",
       "videoSourceType": "youtube",
@@ -132,17 +123,15 @@
     {
       "id": "template-05",
       "templateNumber": 5,
-      "title": "Motion Graphics & Title Video Editing",
+      "title": "AI Content Ads & Motion Graphics Editing",
       "category": "motion",
       "categoryLabel": "Video Editing 05",
       "aspectRatio": "16:9",
-      "client": "Creative Agency & Studio Montage",
-      "description": "Sophisticated kinetic typography, branded lower thirds, animated infographic charts, and 3D logo reveal stingers built with smooth velocity curves and vector illustrations.",
+      "client": "AI Creative Agency & Studio Montage",
+      "description": "Kinetic typography, animated lower thirds, and 3D logo reveal stingers.",
       "editingTechniques": [
         "Bespoke bezier easing curves in After Effects",
-        "Vector rigging & asset preparation in Illustrator",
-        "Dynamic camera zooms, depth blur & particle accents",
-        "Synchronized kinetic sound design hits"
+        "Dynamic camera zooms & particle accents"
       ],
       "toolsUsed": [
         "Adobe Premiere Pro",
@@ -157,6 +146,33 @@
       "isCustomUploaded": true,
       "accentColor": "#06b6d4",
       "embedUrl": "https://www.youtube.com/embed/QkNRYhXbpNQ?autoplay=1&rel=0"
+    },
+    {
+      "id": "template-06",
+      "templateNumber": 6,
+      "title": "SBMC Commercial Promo & Brand Video Editing",
+      "category": "commercial",
+      "categoryLabel": "Video Editing 06",
+      "aspectRatio": "16:9",
+      "client": "SBMC & Corporate Growth Brand",
+      "description": "Commercial promo cut, rhythmic transitions, sound design, and brand storytelling.",
+      "editingTechniques": [
+        "Commercial pacing & brand color grading",
+        "Dynamic typography & cinematic sound effects"
+      ],
+      "toolsUsed": [
+        "Adobe Premiere Pro",
+        "After Effects",
+        "Photoshop"
+      ],
+      "metrics": "4K Broadcast Quality · Commercial Standard",
+      "videoSourceType": "youtube",
+      "videoUrl": "https://youtu.be/16J6vV8brOg",
+      "thumbnailUrl": "/thumbnails/thumb-promo-ad.jpg",
+      "duration": "01:45",
+      "isCustomUploaded": true,
+      "accentColor": "#22d3ee",
+      "embedUrl": "https://www.youtube.com/embed/16J6vV8brOg?autoplay=1&rel=0"
     }
   ],
   "cvConfig": {

@@ -120,9 +120,11 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
                 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
-                <span className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">I craft</span>{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-sky-400 drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">visual stories</span>{' '}
-                <span className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">that matter.</span>
+                <span className="text-white">I craft</span>{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-sky-400">
+                  visual stories
+                </span>{' '}
+                <span className="text-white">that matter.</span>
               </h1>
             </motion.div>
 

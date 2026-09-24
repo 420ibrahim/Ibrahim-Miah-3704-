@@ -25,7 +25,7 @@ export default function handler(_req: IncomingMessage, res: ServerResponse) {
     JSON.stringify({
       success: true,
       data: {
-        portraitSrc: '/uploads/portrait-1790214074938.jpg',
+        portraitSrc: '/ibrahim-portrait.jpg',
         style: {
           preset: 'cyan',
           glowColor: '#10b981',
