@@ -43,6 +43,31 @@ export const Projects: React.FC<ProjectsProps> = ({ onSelectProjectForContact })
     return INITIAL_VIDEO_TEMPLATES;
   });
 
+  // Sync with persistent server storage on mount
+  React.useEffect(() => {
+    let isMounted = true;
+    fetch('/api/portfolio')
+      .then((res) => res.json())
+      .then((payload) => {
+        if (!isMounted || !payload?.success || !payload.data) return;
+        const serverTemplates = payload.data.videoTemplates;
+        if (Array.isArray(serverTemplates) && serverTemplates.length > 0) {
+          setVideoTemplates(serverTemplates);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(serverTemplates));
+          } catch {
+            // ignore
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not sync video templates from server:', err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Current Slide Index for uniform showcase slider
   const [currentIndex, setCurrentIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(1);
@@ -52,7 +77,7 @@ export const Projects: React.FC<ProjectsProps> = ({ onSelectProjectForContact })
   const [playingTemplate, setPlayingTemplate] = useState<VideoProjectTemplate | null>(null);
   const [selectedSpecProject, setSelectedSpecProject] = useState<ProjectDomain | null>(null);
 
-  // Sync to localStorage
+  // Sync to localStorage and Server
   const saveTemplates = (newTemplates: VideoProjectTemplate[]) => {
     setVideoTemplates(newTemplates);
     try {
@@ -60,6 +85,15 @@ export const Projects: React.FC<ProjectsProps> = ({ onSelectProjectForContact })
     } catch (e) {
       console.warn('LocalStorage save failed (possible quota limit)', e);
     }
+
+    // Persist to server backend so published site has all videos
+    fetch('/api/save-projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoTemplates: newTemplates }),
+    }).catch((err) => {
+      console.warn('Failed to persist projects to server:', err);
+    });
   };
 
   const handleSaveTemplate = (updated: VideoProjectTemplate) => {

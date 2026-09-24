@@ -160,56 +160,23 @@ export const PortraitModal: React.FC<PortraitModalProps> = ({ isOpen, onClose })
                   isDragging ? 'border-cyan-400 ring-4 ring-cyan-400/20' : 'border-slate-800'
                 }`}
               >
-                {portraitSrc ? (
-                  <img
-                    src={portraitSrc}
-                    alt="Ibrahim Miah Customized Profile Portrait"
-                    className="w-full h-full object-cover object-top transition-transform duration-200"
-                    style={{
-                      transform: `scale(${style.zoom / 100})`,
-                      filter: `brightness(${style.brightness}%) contrast(${style.contrast}%) ${
-                        style.preset === 'mono' ? 'grayscale(100%)' : ''
-                      }`,
-                    }}
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  /* Stylized Authentic Default Illustration of Ibrahim in Suit */
-                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-slate-900 via-[#0D1527] to-[#080E1C] relative">
-                    <div className="relative w-44 h-44 rounded-full border-2 border-cyan-400/40 overflow-hidden shadow-lg mb-3 flex items-center justify-center bg-slate-800/80">
-                      <svg viewBox="0 0 200 200" className="w-full h-full">
-                        <defs>
-                          <linearGradient id="suitGradModal" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#1E293B" />
-                            <stop offset="100%" stopColor="#0F172A" />
-                          </linearGradient>
-                          <linearGradient id="skinGradModal" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#C49272" />
-                            <stop offset="100%" stopColor="#9C6B4E" />
-                          </linearGradient>
-                        </defs>
-                        <rect width="200" height="200" fill="#0B1120" />
-                        <circle cx="100" cy="80" r="70" fill={style.glowColor} opacity={style.glowIntensity / 400} />
-                        {/* Suit */}
-                        <path d="M 20 200 L 45 135 L 75 145 L 100 190 L 125 145 L 155 135 L 180 200 Z" fill="#0F172A" stroke="#1E293B" strokeWidth="2" />
-                        <polygon points="75,145 100,185 125,145 110,135 100,150 90,135" fill="#F8FAFC" />
-                        <polygon points="95,148 105,148 108,185 100,195 92,185" fill="#020617" />
-                        <rect x="88" y="115" width="24" height="28" fill="url(#skinGradModal)" rx="4" />
-                        <ellipse cx="100" cy="85" rx="38" ry="46" fill="url(#skinGradModal)" />
-                        {/* Facial hair */}
-                        <path d="M 68 85 Q 100 135 132 85 Q 134 115 100 128 Q 66 115 68 85 Z" fill="#1C1917" />
-                        <path d="M 85 96 Q 100 90 115 96 Q 100 102 85 96 Z" fill="#1C1917" />
-                        {/* Hair */}
-                        <path d="M 62 80 C 60 40, 140 40, 138 80 C 135 55, 65 55, 62 80 Z" fill="#09090B" />
-                        {/* Eyes */}
-                        <circle cx="86" cy="84" r="3.5" fill="#1C1917" />
-                        <circle cx="114" cy="84" r="3.5" fill="#1C1917" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-semibold text-cyan-300">Ibrahim Miah</span>
-                    <span className="text-[11px] text-slate-400">Formal Suit & Tie Studio Portrait</span>
-                  </div>
-                )}
+                <img
+                  src={portraitSrc || '/portrait-default.jpg'}
+                  alt="Ibrahim Miah Customized Profile Portrait"
+                  className="w-full h-full object-cover object-top transition-transform duration-200"
+                  style={{
+                    transform: `scale(${style.zoom / 100})`,
+                    filter: `brightness(${style.brightness}%) contrast(${style.contrast}%) ${
+                      style.preset === 'mono' ? 'grayscale(100%)' : ''
+                    }`,
+                  }}
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== window.location.origin + '/portrait-default.jpg') {
+                      img.src = '/portrait-default.jpg';
+                    }
+                  }}
+                />
 
                 {/* Studio Vignette Overlay */}
                 <div

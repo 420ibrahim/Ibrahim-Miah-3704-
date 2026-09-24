@@ -19,11 +19,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (stored === 'light' || stored === 'dark') {
         return stored;
       }
-      // Check system preference if no stored value, default to dark for the portfolio
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        return 'light';
-      }
     }
+    // Always default to premium cinematic dark mode for the video editor portfolio
     return 'dark';
   });
 

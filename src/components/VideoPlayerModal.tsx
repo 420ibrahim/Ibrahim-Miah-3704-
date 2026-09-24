@@ -7,8 +7,10 @@ import {
   Film,
   Clock,
   TrendingUp,
+  AlertCircle,
 } from 'lucide-react';
 import { VideoProjectTemplate } from '../types';
+import { parseVideoUrl } from '../utils/videoUtils';
 
 interface VideoPlayerModalProps {
   isOpen: boolean;
@@ -25,10 +27,21 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   onOpenUpload,
   onContactClick,
 }) => {
+  const [videoError, setVideoError] = React.useState(false);
+
+  React.useEffect(() => {
+    setVideoError(false);
+  }, [template?.id, template?.videoUrl, template?.embedUrl]);
+
   if (!isOpen || !template) return null;
 
   const isVertical = template.aspectRatio === '9:16';
   const isSquare = template.aspectRatio === '1:1';
+
+  // Smart detect embed URL if only youtube/vimeo link was supplied as videoUrl
+  const parsed = template.videoUrl ? parseVideoUrl(template.videoUrl) : null;
+  const effectiveEmbedUrl = template.embedUrl || parsed?.embedUrl;
+  const directVideoUrl = template.videoUrl;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto">
@@ -79,21 +92,49 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
                 : 'w-full aspect-video'
             }`}
           >
-            {template.embedUrl ? (
+            {effectiveEmbedUrl ? (
               <iframe
-                src={template.embedUrl}
+                src={effectiveEmbedUrl}
                 title={template.title}
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-            ) : template.videoUrl ? (
+            ) : directVideoUrl && !videoError ? (
               <video
-                src={template.videoUrl}
+                key={directVideoUrl}
+                src={directVideoUrl}
                 controls
                 autoPlay
+                playsInline
+                preload="auto"
                 className="w-full h-full object-contain"
-              />
+                onError={() => setVideoError(true)}
+              >
+                <source src={directVideoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : videoError ? (
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-slate-950 relative">
+                <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mx-auto mb-3">
+                  <AlertCircle className="w-7 h-7" />
+                </div>
+                <h4 className="text-sm font-bold text-white mb-1">
+                  Unable to stream video file directly
+                </h4>
+                <p className="text-xs text-slate-400 max-w-xs mb-4">
+                  The video file could not be loaded directly by the browser. You can upload a new video file or connect a YouTube link.
+                </p>
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenUpload(template);
+                  }}
+                  className="px-4 py-2 text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-sky-400 rounded-xl"
+                >
+                  Replace Video
+                </button>
+              </div>
             ) : (
               /* Simulated Minimal Luxury Studio Canvas */
               <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-[#111728] via-[#0B0F19] to-black relative">

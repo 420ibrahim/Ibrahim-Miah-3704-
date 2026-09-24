@@ -14,7 +14,7 @@ export interface PortraitStyle {
 
 export const DEFAULT_PORTRAIT_STYLE: PortraitStyle = {
   preset: 'cyan',
-  glowColor: '#06b6d4',
+  glowColor: '#10b981',
   glowIntensity: 75,
   zoom: 105,
   brightness: 104,
@@ -23,6 +23,8 @@ export const DEFAULT_PORTRAIT_STYLE: PortraitStyle = {
   borderGlow: true,
   filterPresetName: 'Cyan Rim Studio',
 };
+
+const DEFAULT_PORTRAIT_URL = '/uploads/portrait-1790214074938.jpg';
 
 interface PortraitContextType {
   portraitSrc: string | null;
@@ -43,9 +45,9 @@ export const PortraitProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [portraitSrc, setPortraitSrcState] = useState<string | null>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_PORTRAIT_KEY);
-      return saved || null;
+      return saved || DEFAULT_PORTRAIT_URL;
     } catch {
-      return null;
+      return DEFAULT_PORTRAIT_URL;
     }
   });
 
@@ -59,17 +61,75 @@ export const PortraitProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return DEFAULT_PORTRAIT_STYLE;
   });
 
+  // Fetch persistent server-stored portrait on mount
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/portfolio')
+      .then((res) => res.json())
+      .then((payload) => {
+        if (!isMounted || !payload?.success || !payload.data) return;
+        const serverData = payload.data;
+        if (serverData.portraitSrc) {
+          setPortraitSrcState(serverData.portraitSrc);
+          try {
+            localStorage.setItem(STORAGE_PORTRAIT_KEY, serverData.portraitSrc);
+          } catch {
+            // ignore
+          }
+        }
+        if (serverData.style) {
+          setStyleState(serverData.style);
+          try {
+            localStorage.setItem(STORAGE_STYLE_KEY, JSON.stringify(serverData.style));
+          } catch {
+            // ignore
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not sync portrait from server, using local fallback:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const saveToServer = (src: string | null, newStyle?: PortraitStyle) => {
+    fetch('/api/save-portrait', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        portraitSrc: src,
+        style: newStyle || style,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.portraitSrc && data.portraitSrc !== src) {
+          // If server stored image and returned a static URL like /uploads/portrait-...
+          setPortraitSrcState(data.portraitSrc);
+          try {
+            localStorage.setItem(STORAGE_PORTRAIT_KEY, data.portraitSrc);
+          } catch {
+            // ignore
+          }
+        }
+      })
+      .catch((e) => {
+        console.warn('Could not persist portrait to server:', e);
+      });
+  };
+
   const setPortraitSrc = (src: string | null) => {
-    setPortraitSrcState(src);
+    const val = src || DEFAULT_PORTRAIT_URL;
+    setPortraitSrcState(val);
     try {
-      if (src) {
-        localStorage.setItem(STORAGE_PORTRAIT_KEY, src);
-      } else {
-        localStorage.removeItem(STORAGE_PORTRAIT_KEY);
-      }
+      localStorage.setItem(STORAGE_PORTRAIT_KEY, val);
     } catch (e) {
       console.warn('Could not save portrait to localStorage:', e);
     }
+    saveToServer(val);
   };
 
   const setStyle = (newStyle: PortraitStyle) => {
@@ -79,6 +139,7 @@ export const PortraitProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {
       console.warn('Could not save style to localStorage:', e);
     }
+    saveToServer(portraitSrc, newStyle);
   };
 
   const updateStyle = (partial: Partial<PortraitStyle>) => {
@@ -89,6 +150,7 @@ export const PortraitProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } catch (e) {
         console.warn('Could not save style to localStorage:', e);
       }
+      saveToServer(portraitSrc, updated);
       return updated;
     });
   };
@@ -161,8 +223,9 @@ export const PortraitProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const resetPortrait = () => {
-    setPortraitSrc(null);
+    setPortraitSrc(DEFAULT_PORTRAIT_URL);
     setStyle(DEFAULT_PORTRAIT_STYLE);
+    fetch('/api/reset-portrait', { method: 'POST' }).catch(() => {});
   };
 
   return (

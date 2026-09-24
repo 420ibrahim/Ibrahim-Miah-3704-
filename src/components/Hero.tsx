@@ -38,7 +38,6 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) => {
   const { portraitSrc, style, setPortraitSrc } = usePortrait();
   const { openOrDownloadCv } = useCv();
-  const [imageError, setImageError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +52,6 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
         reader.onload = (event) => {
           if (typeof event.target?.result === 'string') {
             setPortraitSrc(event.target.result);
-            setImageError(false);
             setIsModalOpen(true);
           }
         };
@@ -69,7 +67,6 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
       reader.onload = (event) => {
         if (typeof event.target?.result === 'string') {
           setPortraitSrc(event.target.result);
-          setImageError(false);
           setIsModalOpen(true);
         }
       };
@@ -123,7 +120,9 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
                 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
-                I craft <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-sky-400 drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">visual stories</span> that matter.
+                <span className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">I craft</span>{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-sky-400 drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">visual stories</span>{' '}
+                <span className="text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">that matter.</span>
               </h1>
             </motion.div>
 
@@ -285,107 +284,36 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleFileDrop}
                 onClick={() => setIsModalOpen(true)}
-                className="relative z-10 w-[240px] sm:w-[300px] md:w-[350px] h-[330px] sm:h-[420px] md:h-[480px] flex items-end justify-center group cursor-pointer"
-                style={{
-                  maskImage: 'linear-gradient(to bottom, black 65%, transparent 98%)',
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 65%, transparent 98%)',
-                }}
+                className="relative z-10 w-[240px] sm:w-[300px] md:w-[350px] h-[330px] sm:h-[420px] md:h-[480px] flex items-end justify-center group cursor-pointer overflow-hidden rounded-2xl"
               >
-                {portraitSrc && !imageError ? (
-                  <img
-                    src={portraitSrc}
-                    alt="Ibrahim Miah — Video Editor & Digital Marketing Executive"
-                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                    style={{
-                      transform: `scale(${style.zoom / 100})`,
-                      filter: `brightness(${style.brightness}%) contrast(${style.contrast}%)`,
-                    }}
-                    referrerPolicy="no-referrer"
-                    onError={() => setImageError(true)}
-                  />
-                ) : (
-                  /* Stylized Cyber Portrait Avatar - Seamlessly transparent, blends with canvas */
-                  <div className="w-full h-full relative flex items-center justify-center bg-transparent">
-                    <svg viewBox="0 0 320 400" className="w-full h-full object-cover">
-                      <defs>
-                        <linearGradient id="portalCyan" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#22D3EE" />
-                          <stop offset="50%" stopColor="#06B6D4" />
-                          <stop offset="100%" stopColor="#0284C7" />
-                        </linearGradient>
-                        <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#D4A373" />
-                          <stop offset="100%" stopColor="#A97148" />
-                        </linearGradient>
-                        <linearGradient id="jacket" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#1E293B" />
-                          <stop offset="100%" stopColor="#070B14" />
-                        </linearGradient>
-                      </defs>
+                <img
+                  src={portraitSrc || '/portrait-default.jpg'}
+                  alt="Ibrahim Miah — Video Editor & Digital Marketing Executive"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  style={{
+                    transform: `scale(${style.zoom / 100})`,
+                    filter: `brightness(${style.brightness}%) contrast(${style.contrast}%) ${
+                      style.preset === 'mono' ? 'grayscale(100%)' : ''
+                    }`,
+                  }}
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== window.location.origin + '/portrait-default.jpg') {
+                      img.src = '/portrait-default.jpg';
+                    }
+                  }}
+                />
 
-                      {/* Black Tech Jacket / Hoodie Body */}
-                      <path
-                        d="M 40 400 C 50 310, 80 270, 110 260 L 130 250 L 160 270 L 190 250 L 210 260 C 240 270, 270 310, 280 400 Z"
-                        fill="url(#jacket)"
-                        stroke="#334155"
-                        strokeWidth="1.2"
-                      />
-                      {/* Hoodie inner zipper & cyan rim light on shoulders */}
-                      <path d="M 160 270 L 160 400" stroke="#06B6D4" strokeWidth="2" strokeDasharray="3,3" opacity="0.7" />
-                      <path d="M 60 360 C 80 280, 110 260, 130 250" fill="none" stroke="#22D3EE" strokeWidth="2" opacity="0.6" />
-                      <path d="M 260 360 C 240 280, 210 260, 190 250" fill="none" stroke="#22D3EE" strokeWidth="2" opacity="0.6" />
+                {/* Subtle bottom vignette to blend naturally into page */}
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#070B14] via-[#070B14]/60 to-transparent pointer-events-none" />
 
-                      {/* Neck */}
-                      <rect x="142" y="215" width="36" height="42" fill="url(#skin)" rx="6" />
-
-                      {/* Head / Face */}
-                      <ellipse cx="160" cy="165" rx="50" ry="62" fill="url(#skin)" />
-
-                      {/* Hair with stylish dark texture and cyan rim highlight */}
-                      <path
-                        d="M 108 150 C 105 90, 215 90, 212 150 C 210 115, 110 115, 108 150 Z"
-                        fill="#0F172A"
-                      />
-                      <path
-                        d="M 112 135 C 120 95, 200 95, 208 135"
-                        fill="none"
-                        stroke="#22D3EE"
-                        strokeWidth="2"
-                        opacity="0.8"
-                      />
-
-                      {/* Modern Eyeglasses */}
-                      <rect x="124" y="145" width="28" height="22" rx="5" fill="none" stroke="#F8FAFC" strokeWidth="2.5" />
-                      <rect x="168" y="145" width="28" height="22" rx="5" fill="none" stroke="#F8FAFC" strokeWidth="2.5" />
-                      <line x1="152" y1="155" x2="168" y2="155" stroke="#F8FAFC" strokeWidth="2" />
-                      {/* Glass glare highlight */}
-                      <line x1="128" y1="150" x2="138" y2="162" stroke="#22D3EE" strokeWidth="1.5" opacity="0.7" />
-                      <line x1="172" y1="150" x2="182" y2="162" stroke="#22D3EE" strokeWidth="1.5" opacity="0.7" />
-
-                      {/* Eyes */}
-                      <circle cx="138" cy="156" r="3.5" fill="#0F172A" />
-                      <circle cx="182" cy="156" r="3.5" fill="#0F172A" />
-                      <circle cx="139" cy="155" r="1" fill="#FFFFFF" />
-                      <circle cx="183" cy="155" r="1" fill="#FFFFFF" />
-
-                      {/* Eyebrows */}
-                      <path d="M 124 140 Q 138 136 150 140" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 170 140 Q 182 136 196 140" fill="none" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
-
-                      {/* Nose */}
-                      <path d="M 160 156 L 157 178 L 163 178" fill="none" stroke="#8D5B38" strokeWidth="2" strokeLinecap="round" />
-
-                      {/* Well-groomed short beard and mustache */}
-                      <path
-                        d="M 118 165 C 120 225, 200 225, 202 165 C 195 210, 125 210, 118 165 Z"
-                        fill="#0B1120"
-                        opacity="0.95"
-                      />
-                      <path d="M 144 186 Q 160 180 176 186 Q 160 193 144 186 Z" fill="#0B1120" />
-                      <path d="M 148 195 Q 160 200 172 195" fill="none" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
+                {/* Hover overlay hint */}
+                <div className="absolute inset-0 bg-cyan-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                  <div className="px-3 py-1.5 rounded-full bg-slate-950/80 border border-cyan-400/50 text-[11px] font-medium text-cyan-300 backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Change Photo</span>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* 3. Floating Glass Stat Badges (Shown on sm+ screens to preserve 3D atmospheric layout) */}

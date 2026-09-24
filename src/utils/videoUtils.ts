@@ -1,5 +1,5 @@
 /**
- * Helper utility to parse video links (YouTube, Shorts, Vimeo, direct MP4)
+ * Helper utility to parse video links (YouTube, Shorts, Vimeo, Google Drive, direct MP4)
  */
 
 export function parseVideoUrl(input: string): {
@@ -31,11 +31,23 @@ export function parseVideoUrl(input: string): {
   }
 
   // Vimeo: https://vimeo.com/{id}
-  const vimeoMatch = trimmed.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/);
+  const vimeoMatch = trimmed.match(
+    /vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/
+  );
   if (vimeoMatch && vimeoMatch[3]) {
     return {
       type: 'vimeo',
       embedUrl: `https://player.vimeo.com/video/${vimeoMatch[3]}?autoplay=1`,
+    };
+  }
+
+  // Google Drive: https://drive.google.com/file/d/{id}/...
+  const gdriveMatch = trimmed.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (gdriveMatch) {
+    return {
+      type: 'url',
+      embedUrl: `https://drive.google.com/file/d/${gdriveMatch[1]}/preview`,
+      directUrl: trimmed,
     };
   }
 

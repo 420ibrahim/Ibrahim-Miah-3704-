@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Sparkles,
   Check,
+  Loader2,
 } from 'lucide-react';
 import { VideoProjectTemplate } from '../types';
 import { parseVideoUrl } from '../utils/videoUtils';
@@ -54,6 +55,8 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
   );
 
   const [isDraggingVideo, setIsDraggingVideo] = useState(false);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [uploadStatusMsg, setUploadStatusMsg] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const videoFileRef = useRef<HTMLInputElement>(null);
@@ -64,14 +67,60 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
       alert('Please select a valid video file (.mp4, .webm, .mov, etc.)');
       return;
     }
-    const blobUrl = URL.createObjectURL(file);
-    setFormData((prev) => ({
-      ...prev,
-      videoUrl: blobUrl,
-      embedUrl: undefined,
-      videoSourceType: 'upload',
-      isCustomUploaded: true,
-    }));
+
+    setIsUploadingMedia(true);
+    setUploadStatusMsg('Reading and saving video to server storage...');
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64Data = e.target?.result as string;
+        const res = await fetch('/api/upload-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileData: base64Data,
+            fileName: file.name,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success && data.url) {
+          setFormData((prev) => ({
+            ...prev,
+            videoUrl: data.url,
+            embedUrl: undefined,
+            videoSourceType: 'url',
+            isCustomUploaded: true,
+          }));
+          setUploadStatusMsg('Video uploaded & stored permanently!');
+        } else {
+          // Local fallback in case server upload endpoint is unavailable
+          const blobUrl = URL.createObjectURL(file);
+          setFormData((prev) => ({
+            ...prev,
+            videoUrl: blobUrl,
+            embedUrl: undefined,
+            videoSourceType: 'upload',
+            isCustomUploaded: true,
+          }));
+          setUploadStatusMsg('Saved locally');
+        }
+      } catch (err) {
+        console.warn('Server upload failed, using local stream:', err);
+        const blobUrl = URL.createObjectURL(file);
+        setFormData((prev) => ({
+          ...prev,
+          videoUrl: blobUrl,
+          embedUrl: undefined,
+          videoSourceType: 'upload',
+          isCustomUploaded: true,
+        }));
+      } finally {
+        setIsUploadingMedia(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleThumbnailFile = (file: File) => {
@@ -79,13 +128,43 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
       alert('Please select a valid image file');
       return;
     }
+
+    setIsUploadingMedia(true);
+    setUploadStatusMsg('Saving thumbnail to server storage...');
+
     const reader = new FileReader();
-    reader.onload = (e) => {
-      if (typeof e.target?.result === 'string') {
+    reader.onload = async (e) => {
+      try {
+        const base64Data = e.target?.result as string;
+        const res = await fetch('/api/upload-media', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileData: base64Data,
+            fileName: file.name,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success && data.url) {
+          setFormData((prev) => ({
+            ...prev,
+            thumbnailUrl: data.url,
+          }));
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            thumbnailUrl: base64Data,
+          }));
+        }
+      } catch (err) {
         setFormData((prev) => ({
           ...prev,
           thumbnailUrl: e.target?.result as string,
         }));
+      } finally {
+        setIsUploadingMedia(false);
+        setUploadStatusMsg('');
       }
     };
     reader.readAsDataURL(file);
@@ -100,6 +179,14 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
         ...prev,
         videoSourceType: vType,
         videoUrl: value,
+        embedUrl: parsed.embedUrl,
+        isCustomUploaded: true,
+      }));
+    } else if (parsed.embedUrl) {
+      setFormData((prev) => ({
+        ...prev,
+        videoSourceType: 'url',
+        videoUrl: parsed.directUrl || value,
         embedUrl: parsed.embedUrl,
         isCustomUploaded: true,
       }));
@@ -210,7 +297,7 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
                 }`}
               >
                 <LinkIcon className="w-4 h-4 text-amber-400" />
-                <span>YouTube / Shorts / Vimeo Link</span>
+                <span>YouTube / Shorts / Drive / Link</span>
               </button>
             </div>
 
@@ -235,7 +322,7 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
                     setIsDraggingVideo(false);
                     if (e.dataTransfer.files?.[0]) handleVideoFile(e.dataTransfer.files[0]);
                   }}
-                  onClick={() => videoFileRef.current?.click()}
+                  onClick={() => !isUploadingMedia && videoFileRef.current?.click()}
                   className={`p-6 rounded-2xl border-2 border-dashed text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                     isDraggingVideo
                       ? 'border-amber-400 bg-amber-950/20'
@@ -243,38 +330,44 @@ export const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
                   }`}
                 >
                   <div className="w-12 h-12 rounded-xl bg-slate-800/80 flex items-center justify-center text-amber-400 mb-3 shadow-inner">
-                    <Upload className="w-6 h-6" />
+                    {isUploadingMedia ? (
+                      <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
+                    ) : (
+                      <Upload className="w-6 h-6" />
+                    )}
                   </div>
                   <span className="text-sm font-semibold text-white">
-                    {formData.videoUrl && formData.videoSourceType === 'upload'
-                      ? 'Video Loaded · Click to Change Video File'
+                    {isUploadingMedia
+                      ? uploadStatusMsg || 'Uploading video to server...'
+                      : formData.videoUrl
+                      ? 'Video Ready · Click to Replace File'
                       : 'Drop your project video here, or click to browse'}
                   </span>
                   <span className="text-xs text-slate-400 mt-1">
-                    Supports MP4, WebM, MOV (High bitrate supported)
+                    Supports MP4, WebM, MOV · Stored persistently for published site
                   </span>
-                  {formData.videoUrl && formData.videoSourceType === 'upload' && (
+                  {formData.videoUrl && (
                     <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium">
-                      <Check className="w-3.5 h-3.5" /> Video File Ready for Playback
+                      <Check className="w-3.5 h-3.5" /> Video Ready for Playback
                     </span>
                   )}
                 </div>
               </div>
             ) : (
-              /* Mode 2: YouTube / Vimeo URL Input */
+              /* Mode 2: YouTube / Vimeo / Drive URL Input */
               <div className="space-y-2">
                 <div className="relative">
                   <input
                     type="url"
                     value={urlInput}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/shorts/..."
+                    placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/shorts/... or Google Drive"
                     className="w-full px-4 py-3 pl-11 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-colors"
                   />
                   <LinkIcon className="w-4 h-4 text-slate-500 absolute left-4 top-3.5" />
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Automatically extracts embed code for standard YouTube, YouTube Shorts, Vimeo, or direct MP4 streams.
+                  Works with YouTube videos, YouTube Shorts, Vimeo, Google Drive share links, or direct MP4 URLs.
                 </p>
                 {formData.embedUrl && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium">

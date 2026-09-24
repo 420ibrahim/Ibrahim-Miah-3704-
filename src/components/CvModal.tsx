@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X,
   FileText,
@@ -11,6 +11,7 @@ import {
   Trash2,
   Sparkles,
   Info,
+  Loader2,
 } from 'lucide-react';
 import { useCv } from '../context/CvContext';
 
@@ -18,6 +19,7 @@ export const CvModal: React.FC = () => {
   const {
     cvConfig,
     isCvModalOpen,
+    isUploading,
     setIsCvModalOpen,
     setCvLink,
     setCvFile,
@@ -31,21 +33,35 @@ export const CvModal: React.FC = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (cvConfig?.type === 'link' && cvConfig.url) {
+      setUrlInput(cvConfig.url);
+    }
+  }, [cvConfig]);
 
   if (!isCvModalOpen) return null;
 
-  const handleSaveLink = (e: React.FormEvent) => {
+  const handleSaveLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) {
       setErrorMsg('Please enter a valid link (e.g., Google Drive or PDF link)');
       return;
     }
 
-    setCvLink(urlInput.trim());
+    setIsSubmitting(true);
     setErrorMsg('');
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    const success = await setCvLink(urlInput.trim());
+    setIsSubmitting(false);
+
+    if (success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3500);
+    } else {
+      setErrorMsg('Failed to save CV link to server. Please try again.');
+    }
   };
 
   const handleFileUpload = (file: File) => {
@@ -57,12 +73,16 @@ export const CvModal: React.FC = () => {
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const base64Data = reader.result as string;
-      setCvFile(file.name, base64Data);
       setErrorMsg('');
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      const success = await setCvFile(file.name, base64Data);
+      if (success) {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3500);
+      } else {
+        setErrorMsg('Failed to upload CV to server. Please try again or use a cloud link.');
+      }
     };
     reader.onerror = () => {
       setErrorMsg('Failed to read file. Please try again or use a cloud link.');
@@ -122,51 +142,47 @@ export const CvModal: React.FC = () => {
         {/* Current Active CV Status Banner */}
         <div className="my-5 p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-3 h-3 rounded-full ${
-                hasCustomCv ? 'bg-emerald-400 shadow-[0_0_10px_#34d399]' : 'bg-amber-400'
-              }`}
-            />
+            <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
             <div>
               <div className="text-xs font-semibold text-slate-200">
                 {hasCustomCv ? (
                   <span className="text-emerald-400 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" /> CV Connected & Active
+                    <CheckCircle2 className="w-4 h-4" /> Custom CV Active
                   </span>
                 ) : (
-                  <span className="text-amber-300">No CV Connected Yet</span>
+                  <span className="text-cyan-300 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" /> Official Ibrahim Miah CV (Ready)
+                  </span>
                 )}
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5 truncate max-w-xs">
+              <div className="text-[11px] text-slate-400 mt-0.5 truncate max-w-xs font-mono">
                 {cvConfig?.type === 'link'
                   ? `Link: ${cvConfig.url}`
-                  : cvConfig?.type === 'file'
-                  ? `File: ${cvConfig.fileName}`
-                  : 'Clicking "Download CV" will open this manager until set.'}
+                  : `File: ${cvConfig.fileName || 'Ibrahim_Miah_Video_Editor_CV.pdf'}`}
               </div>
             </div>
           </div>
 
-          {hasCustomCv && (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={openOrDownloadCv}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 hover:from-cyan-300 hover:to-sky-300 transition-all cursor-pointer"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>Open CV Now</span>
-              </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={openOrDownloadCv}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 hover:from-cyan-300 hover:to-sky-300 transition-all cursor-pointer"
+            >
+              <FileDown className="w-3.5 h-3.5" />
+              <span>Download & Test</span>
+            </button>
+            {hasCustomCv && (
               <button
                 type="button"
                 onClick={clearCv}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                title="Remove current CV"
+                title="Reset to default CV"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Tab Selection */}
@@ -201,7 +217,7 @@ export const CvModal: React.FC = () => {
         {saveSuccess && (
           <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>CV updated successfully! Anyone clicking &quot;Download CV&quot; will now be taken to your CV.</span>
+            <span>CV updated and saved to server permanently! Anyone clicking &quot;Download CV&quot; will now download your file.</span>
           </div>
         )}
 
@@ -244,10 +260,15 @@ export const CvModal: React.FC = () => {
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="submit"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Save CV Link</span>
+                {isSubmitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
+                <span>{isSubmitting ? 'Saving to Server...' : 'Save CV Link'}</span>
               </button>
             </div>
           </form>
@@ -263,28 +284,35 @@ export const CvModal: React.FC = () => {
               }}
               onDragLeave={() => setDragActive(false)}
               onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => !isUploading && fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
                 dragActive
                   ? 'border-cyan-400 bg-cyan-500/10'
                   : 'border-slate-700 bg-slate-950/60 hover:border-cyan-400/60 hover:bg-slate-950'
-              }`}
+              } ${isUploading ? 'opacity-50 cursor-wait' : ''}`}
             >
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={onFileInputChange}
+                disabled={isUploading}
                 className="hidden"
               />
               <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
-                <Upload className="w-6 h-6" />
+                {isUploading ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+                ) : (
+                  <Upload className="w-6 h-6" />
+                )}
               </div>
               <h4 className="text-sm font-bold text-white mb-1">
-                Upload your CV (PDF or DOCX)
+                {isUploading ? 'Uploading & Saving to Server...' : 'Upload your CV (PDF or DOCX)'}
               </h4>
               <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Drag and drop your file here, or click to browse from your device.
+                {isUploading
+                  ? 'Please wait while your CV is written to the persistent server...'
+                  : 'Drag and drop your file here, or click to browse from your device.'}
               </p>
               <span className="inline-block mt-3 text-[10px] text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20 font-mono">
                 Supports PDF up to 15MB
@@ -295,7 +323,7 @@ export const CvModal: React.FC = () => {
 
         {/* Footer Note */}
         <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
-          Once saved, clicking <span className="text-cyan-300 font-semibold">&quot;Download CV&quot;</span> in the header or menu will immediately take visitors directly to your CV.
+          Once saved, clicking <span className="text-cyan-300 font-semibold">&quot;Download CV&quot;</span> in the navigation bar or hero section will immediately download your CV file.
         </div>
       </div>
     </div>
