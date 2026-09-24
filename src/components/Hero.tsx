@@ -287,7 +287,7 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
                 className="relative z-10 w-[240px] sm:w-[300px] md:w-[350px] h-[330px] sm:h-[420px] md:h-[480px] flex items-end justify-center group cursor-pointer overflow-hidden rounded-2xl"
               >
                 <img
-                  src={portraitSrc || '/portrait-default.jpg'}
+                  src={portraitSrc || '/ibrahim-portrait.jpg'}
                   alt="Ibrahim Miah — Video Editor & Digital Marketing Executive"
                   className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   style={{
@@ -298,8 +298,8 @@ export const Hero: React.FC<HeroProps> = ({ onViewWorkClick, onContactClick }) =
                   }}
                   onError={(e) => {
                     const img = e.currentTarget;
-                    if (img.src !== window.location.origin + '/portrait-default.jpg') {
-                      img.src = '/portrait-default.jpg';
+                    if (!img.src.includes('i.ibb.co')) {
+                      img.src = 'https://i.ibb.co/F495k17k/ibrahim.jpg';
                     }
                   }}
                 />

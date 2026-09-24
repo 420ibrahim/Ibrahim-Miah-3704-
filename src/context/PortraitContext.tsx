@@ -24,7 +24,7 @@ export const DEFAULT_PORTRAIT_STYLE: PortraitStyle = {
   filterPresetName: 'Cyan Rim Studio',
 };
 
-const DEFAULT_PORTRAIT_URL = '/uploads/portrait-1790214074938.jpg';
+const DEFAULT_PORTRAIT_URL = '/ibrahim-portrait.jpg';
 
 interface PortraitContextType {
   portraitSrc: string | null;
